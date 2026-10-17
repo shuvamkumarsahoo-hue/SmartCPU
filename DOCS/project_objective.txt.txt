@@ -1,0 +1,10 @@
+# SmartCPU — Documentation
+
+This folder contains project documentation.
+
+Planned documents:
+- Project objectives
+- Architecture diagrams
+- Implementation report
+- Testing results
+- Viva preparation
