@@ -1,0 +1,4 @@
+# Verilog simulation outputs
+*.out
+alu_test
+*.vcd
