@@ -1,4 +1,5 @@
 
+
 module register_file (
     input clk,
     input reset,
@@ -18,8 +19,11 @@ always @(posedge clk or posedge reset) begin
     if (reset) begin
         for (i = 0; i < 8; i = i + 1)
             registers[i] <= 4'b0000;
+
+        // Initialize R0 with the value 3
+        registers[0] <= 4'd3;
     end
-    else if (reg_write) begin
+    else if (reg_write && (write_addr != 3'd0)) begin
         registers[write_addr] <= write_data;
     end
 end
