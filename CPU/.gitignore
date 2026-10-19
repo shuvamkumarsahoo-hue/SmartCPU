@@ -2,3 +2,8 @@
 *.out
 alu_test
 *.vcd
+register_test
+pc_test
+control_test
+imem_test
+cpu_test
