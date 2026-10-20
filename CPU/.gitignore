@@ -7,3 +7,4 @@ pc_test
 control_test
 imem_test
 cpu_test
+data_mem_test
