@@ -13,14 +13,11 @@ wire [11:0] instruction;
 wire reg_write, alu_src, mem_read, mem_write, branch;
 wire [2:0] alu_op;
 
-wire [2:0] opcode;
-wire [2:0] dest;
-wire [2:0] src_a;
-wire [2:0] src_b;
-
-wire [3:0] data_a;
-wire [3:0] data_b;
+wire [2:0] opcode, dest, src_a, src_b;
+wire [3:0] data_a, data_b;
 wire [3:0] alu_result;
+wire [3:0] memory_data;
+wire [3:0] write_back_data;
 wire zero, carry;
 
 assign opcode = instruction[11:9];
@@ -59,7 +56,7 @@ register_file RF (
     .read_addr_a(src_a),
     .read_addr_b(src_b),
     .write_addr(dest),
-    .write_data(alu_result),
+    .write_data(write_back_data),
     .read_data_a(data_a),
     .read_data_b(data_b)
 );
@@ -72,6 +69,19 @@ alu ALU (
     .Zero(zero),
     .Carry(carry)
 );
+
+// 4-bit data memory: 16 locations
+data_memory DMEM (
+    .clk(clk),
+    .mem_read(mem_read),
+    .mem_write(mem_write),
+    .address(instruction[3:0]),
+    .write_data(data_a),
+    .read_data(memory_data)
+);
+
+// Select ALU result or memory data for register write-back
+assign write_back_data = mem_read ? memory_data : alu_result;
 
 assign pc_out = pc;
 assign instruction_out = instruction;
