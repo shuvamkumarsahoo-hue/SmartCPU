@@ -15,15 +15,18 @@ wire [2:0] alu_op;
 
 wire [2:0] opcode, dest, src_a, src_b;
 wire [3:0] data_a, data_b;
-wire [3:0] alu_result;
-wire [3:0] memory_data;
-wire [3:0] write_back_data;
+wire [3:0] alu_result, memory_data, write_back_data;
+wire [3:0] memory_address;
 wire zero, carry;
 
 assign opcode = instruction[11:9];
 assign dest   = instruction[8:6];
 assign src_a  = instruction[5:3];
 assign src_b  = instruction[2:0];
+
+// Arithmetic instructions use the original register fields.
+// LOAD/STORE use [8:6] as the register and [3:0] as address.
+assign memory_address = instruction[3:0];
 
 program_counter PC (
     .clk(clk),
@@ -49,11 +52,13 @@ control_unit CU (
     .alu_op(alu_op)
 );
 
+// For STORE, [8:6] identifies the source register.
+// For LOAD, [8:6] identifies the destination register.
 register_file RF (
     .clk(clk),
     .reset(reset),
-    .reg_write(reg_write),
-    .read_addr_a(src_a),
+    .reg_write(mem_read ? 1'b1 : reg_write),
+    .read_addr_a(mem_write ? dest : src_a),
     .read_addr_b(src_b),
     .write_addr(dest),
     .write_data(write_back_data),
@@ -70,17 +75,15 @@ alu ALU (
     .Carry(carry)
 );
 
-// 4-bit data memory: 16 locations
 data_memory DMEM (
     .clk(clk),
     .mem_read(mem_read),
     .mem_write(mem_write),
-    .address(instruction[3:0]),
+    .address(memory_address),
     .write_data(data_a),
     .read_data(memory_data)
 );
 
-// Select ALU result or memory data for register write-back
 assign write_back_data = mem_read ? memory_data : alu_result;
 
 assign pc_out = pc;
